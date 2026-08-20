@@ -20,7 +20,17 @@ function getInitialState(containerId = null) {
     temperature: null,
     temperatureStatus: 'NORMAL', // NORMAL, WARNING, CRITICAL
     temperatureHistory: [], // Array of { timestamp, temperature, location, isSpike }
-    locationHistory: [], // Array of { timestamp, location, eventType }
+    humidity: null,
+    humidityStatus: 'NORMAL', // NORMAL, WARNING
+    humidityHistory: [], // Array of { timestamp, humidity, location, isSpike }
+    doorOpen: false,
+    doorAccessLogs: [], // Array of { timestamp, doorOpen, location }
+    maxShockG: 0,
+    shockEvents: [], // Array of { timestamp, gForce, location }
+    geofenceBreached: false,
+    geofenceEvents: [], // Array of { timestamp, latitude, longitude, location, reason }
+    coordinates: { latitude: null, longitude: null },
+    locationHistory: [], // Array of { timestamp, location, eventType, latitude, longitude }
     currentVersion: 0,
     lastUpdated: null,
   };
@@ -39,6 +49,10 @@ function applyEvent(state, event) {
 
   const payload = event.payload || {};
 
+  if (payload.latitude !== undefined && payload.longitude !== undefined) {
+    newState.coordinates = { latitude: payload.latitude, longitude: payload.longitude };
+  }
+
   switch (event.eventType) {
     case EventTypes.CONTAINER_CREATED:
       newState.containerId = event.aggregateId;
@@ -56,6 +70,8 @@ function applyEvent(state, event) {
           timestamp: event.timestamp,
           location: newState.currentLocation,
           eventType: event.eventType,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
         },
       ];
       break;
@@ -74,6 +90,8 @@ function applyEvent(state, event) {
           location: newState.currentLocation,
           eventType: event.eventType,
           vesselName: newState.vesselName,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
         },
       ];
       break;
@@ -89,12 +107,17 @@ function applyEvent(state, event) {
           timestamp: event.timestamp,
           location: newState.currentLocation,
           eventType: event.eventType,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
         },
       ];
       break;
 
     case EventTypes.TEMPERATURE_RECORDED:
       newState.temperature = payload.temperature;
+      if (payload.humidity !== undefined) {
+        newState.humidity = payload.humidity;
+      }
       if (payload.location) {
         newState.currentLocation = payload.location;
       }
@@ -103,6 +126,7 @@ function applyEvent(state, event) {
         {
           timestamp: event.timestamp,
           temperature: payload.temperature,
+          humidity: payload.humidity,
           location: payload.location || newState.currentLocation,
           isSpike: false,
         },
@@ -112,6 +136,9 @@ function applyEvent(state, event) {
     case EventTypes.TEMPERATURE_SPIKE:
       newState.temperature = payload.temperature;
       newState.temperatureStatus = payload.temperature > 15 ? 'CRITICAL' : 'WARNING';
+      if (payload.humidity !== undefined) {
+        newState.humidity = payload.humidity;
+      }
       if (payload.location) {
         newState.currentLocation = payload.location;
       }
@@ -120,9 +147,80 @@ function applyEvent(state, event) {
         {
           timestamp: event.timestamp,
           temperature: payload.temperature,
+          humidity: payload.humidity,
           threshold: payload.threshold || 8.0,
           location: payload.location || newState.currentLocation,
           isSpike: true,
+        },
+      ];
+      break;
+
+    case EventTypes.HUMIDITY_SPIKE:
+      newState.humidity = payload.humidity;
+      newState.humidityStatus = 'WARNING';
+      if (payload.location) {
+        newState.currentLocation = payload.location;
+      }
+      newState.humidityHistory = [
+        ...newState.humidityHistory,
+        {
+          timestamp: event.timestamp,
+          humidity: payload.humidity,
+          threshold: payload.threshold || 75,
+          location: payload.location || newState.currentLocation,
+          isSpike: true,
+        },
+      ];
+      break;
+
+    case EventTypes.CARGO_SHOCK_DETECTED:
+      newState.maxShockG = Math.max(newState.maxShockG, payload.gForce || 0);
+      newState.shockEvents = [
+        ...newState.shockEvents,
+        {
+          timestamp: event.timestamp,
+          gForce: payload.gForce,
+          threshold: payload.threshold || 2.5,
+          location: payload.location || newState.currentLocation,
+        },
+      ];
+      break;
+
+    case EventTypes.DOOR_OPENED:
+      newState.doorOpen = true;
+      newState.doorAccessLogs = [
+        ...newState.doorAccessLogs,
+        {
+          timestamp: event.timestamp,
+          doorOpen: true,
+          location: payload.location || newState.currentLocation,
+        },
+      ];
+      break;
+
+    case EventTypes.DOOR_CLOSED:
+      newState.doorOpen = false;
+      newState.doorAccessLogs = [
+        ...newState.doorAccessLogs,
+        {
+          timestamp: event.timestamp,
+          doorOpen: false,
+          location: payload.location || newState.currentLocation,
+        },
+      ];
+      break;
+
+    case EventTypes.GEOFENCE_EXITED:
+    case EventTypes.UNAUTHORIZED_ROUTE_DEVIATION:
+      newState.geofenceBreached = true;
+      newState.geofenceEvents = [
+        ...newState.geofenceEvents,
+        {
+          timestamp: event.timestamp,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
+          location: payload.location || newState.currentLocation,
+          reason: payload.reason || 'Geofence / Corridor breach',
         },
       ];
       break;
@@ -139,6 +237,8 @@ function applyEvent(state, event) {
           location: newState.currentLocation,
           eventType: event.eventType,
           portName: newState.portName,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
         },
       ];
       break;
@@ -156,6 +256,8 @@ function applyEvent(state, event) {
           timestamp: event.timestamp,
           location: newState.currentLocation,
           eventType: event.eventType,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
         },
       ];
       break;
@@ -172,6 +274,8 @@ function applyEvent(state, event) {
           timestamp: event.timestamp,
           location: newState.currentLocation,
           eventType: event.eventType,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
         },
       ];
       break;

@@ -54,18 +54,28 @@ async function seed() {
       notes: 'Passing international shipping line',
     });
 
-    await commandHandlers.recordTemperature({
+    await commandHandlers.recordTelemetry({
       containerId: 'CNT-1001',
       temperature: 5.1,
+      humidity: 55,
+      shockG: 0.2,
+      doorOpen: false,
+      latitude: 2.5,
+      longitude: 101.8,
       location: 'Malacca Strait',
     });
 
     // TEMPERATURE SPIKE Event (exceeds threshold 8.0°C)
-    await commandHandlers.recordTemperature({
+    await commandHandlers.recordTelemetry({
       containerId: 'CNT-1001',
       temperature: 12.8,
+      humidity: 82, // triggers humidity spike
+      shockG: 3.1, // triggers cargo shock breach (>2.5G)
+      doorOpen: true, // triggers door open event
+      latitude: 10.2,
+      longitude: 65.4,
       location: 'Arabian Sea',
-      threshold: 8.0,
+      geofenceBreached: true, // triggers geofence exit
     });
 
     await commandHandlers.moveContainer({
@@ -100,9 +110,14 @@ async function seed() {
       location: 'North Atlantic Ocean',
     });
 
-    await commandHandlers.recordTemperature({
+    await commandHandlers.recordTelemetry({
       containerId: 'CNT-1002',
       temperature: 19.2,
+      humidity: 60,
+      shockG: 0.1,
+      doorOpen: false,
+      latitude: 45.0,
+      longitude: -30.0,
       location: 'North Atlantic Ocean',
     });
 
@@ -139,9 +154,14 @@ async function seed() {
       location: 'Hamburg Terminal 1',
     });
 
-    await commandHandlers.recordTemperature({
+    await commandHandlers.recordTelemetry({
       containerId: 'CNT-1003',
       temperature: -19.5,
+      humidity: 40,
+      shockG: 0.3,
+      doorOpen: false,
+      latitude: 27.8,
+      longitude: 34.3,
       location: 'Suez Canal',
     });
 

@@ -6,11 +6,6 @@ const { updateContainerProjection } = require('../projections/containerProjectio
 
 /**
  * Base helper for executing a command.
- * 1. Reconstruct current aggregate state from Event Store.
- * 2. Validate domain rules.
- * 3. Append event to Event Store (with OCC check if expectedVersion passed).
- * 4. Trigger projection update.
- * 5. Return generated event and updated state.
  */
 async function executeCommand({ aggregateId, eventType, payload = {}, expectedVersion, io }) {
   const events = await getEventsForAggregate(aggregateId);
@@ -101,6 +96,102 @@ async function recordTemperature({ containerId, temperature, location, threshold
   });
 }
 
+async function recordTelemetry({ containerId, temperature, humidity, shockG, doorOpen, latitude, longitude, location, geofenceBreached, expectedVersion, io }) {
+  const events = await getEventsForAggregate(containerId);
+  const currentState = replayEvents(events, containerId);
+
+  validateCommand(EventTypes.TELEMETRY_RECORDED, currentState, {});
+
+  const generatedEvents = [];
+  let currentExpectedVersion = expectedVersion;
+
+  // 1. Temperature / Humidity evaluation
+  const tempVal = temperature !== undefined ? Number(temperature) : currentState.temperature;
+  const humVal = humidity !== undefined ? Number(humidity) : currentState.humidity;
+  const shockVal = shockG !== undefined ? Number(shockG) : 0;
+  const locVal = location || currentState.currentLocation;
+
+  if (tempVal !== null && tempVal > 8.0) {
+    const tempRes = await executeCommand({
+      aggregateId: containerId,
+      eventType: EventTypes.TEMPERATURE_SPIKE,
+      payload: { temperature: tempVal, humidity: humVal, location: locVal, threshold: 8.0 },
+      expectedVersion: currentExpectedVersion,
+      io,
+    });
+    generatedEvents.push(tempRes.event);
+    currentExpectedVersion = tempRes.event.version;
+  } else if (tempVal !== null) {
+    const tempRes = await executeCommand({
+      aggregateId: containerId,
+      eventType: EventTypes.TEMPERATURE_RECORDED,
+      payload: { temperature: tempVal, humidity: humVal, location: locVal },
+      expectedVersion: currentExpectedVersion,
+      io,
+    });
+    generatedEvents.push(tempRes.event);
+    currentExpectedVersion = tempRes.event.version;
+  }
+
+  // 2. Humidity spike threshold (>75%)
+  if (humVal > 75) {
+    const humRes = await executeCommand({
+      aggregateId: containerId,
+      eventType: EventTypes.HUMIDITY_SPIKE,
+      payload: { humidity: humVal, threshold: 75, location: locVal },
+      expectedVersion: currentExpectedVersion,
+      io,
+    });
+    generatedEvents.push(humRes.event);
+    currentExpectedVersion = humRes.event.version;
+  }
+
+  // 3. Shock G-Force breach (>2.5G)
+  if (shockVal > 2.5) {
+    const shockRes = await executeCommand({
+      aggregateId: containerId,
+      eventType: EventTypes.CARGO_SHOCK_DETECTED,
+      payload: { gForce: shockVal, threshold: 2.5, location: locVal },
+      expectedVersion: currentExpectedVersion,
+      io,
+    });
+    generatedEvents.push(shockRes.event);
+    currentExpectedVersion = shockRes.event.version;
+  }
+
+  // 4. Door state toggle
+  if (doorOpen !== undefined && doorOpen !== currentState.doorOpen) {
+    const doorType = doorOpen ? EventTypes.DOOR_OPENED : EventTypes.DOOR_CLOSED;
+    const doorRes = await executeCommand({
+      aggregateId: containerId,
+      eventType: doorType,
+      payload: { doorOpen, location: locVal },
+      expectedVersion: currentExpectedVersion,
+      io,
+    });
+    generatedEvents.push(doorRes.event);
+    currentExpectedVersion = doorRes.event.version;
+  }
+
+  // 5. Geofence / Corridor deviation breach
+  if (geofenceBreached || (latitude !== undefined && (latitude < -60 || latitude > 70))) {
+    const geoRes = await executeCommand({
+      aggregateId: containerId,
+      eventType: EventTypes.GEOFENCE_EXITED,
+      payload: { latitude, longitude, location: locVal, reason: 'Maritime corridor boundary exited' },
+      expectedVersion: currentExpectedVersion,
+      io,
+    });
+    generatedEvents.push(geoRes.event);
+    currentExpectedVersion = geoRes.event.version;
+  }
+
+  const finalEvents = await getEventsForAggregate(containerId);
+  const finalState = replayEvents(finalEvents, containerId);
+
+  return { events: generatedEvents, state: finalState };
+}
+
 async function arriveContainer({ containerId, portName, location, expectedVersion, io }) {
   return await executeCommand({
     aggregateId: containerId,
@@ -136,6 +227,7 @@ module.exports = {
   loadContainer,
   moveContainer,
   recordTemperature,
+  recordTelemetry,
   arriveContainer,
   unloadContainer,
   completeDelivery,

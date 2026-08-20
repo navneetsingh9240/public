@@ -3,70 +3,59 @@ const Event = require('../models/Event');
 const { replayEvents } = require('../aggregates/containerAggregate');
 
 /**
- * Updates the read model for a single container aggregate from its reconstructed state.
+ * Updates the read model projection based on the reconstructed state.
  */
-async function updateContainerProjection(containerState) {
-  if (!containerState || !containerState.containerId) return;
+async function updateContainerProjection(state) {
+  if (!state || !state.containerId) return null;
 
   const projectionData = {
-    containerId: containerState.containerId,
-    owner: containerState.owner,
-    origin: containerState.origin,
-    destination: containerState.destination,
-    currentLocation: containerState.currentLocation,
-    status: containerState.status,
-    temperature: containerState.temperature,
-    temperatureStatus: containerState.temperatureStatus,
-    loaded: containerState.loaded,
-    vesselName: containerState.vesselName,
-    arrivedAtPort: containerState.arrivedAtPort,
-    portName: containerState.portName,
-    unloaded: containerState.unloaded,
-    deliveryCompleted: containerState.deliveryCompleted,
-    currentVersion: containerState.currentVersion,
-    lastUpdated: containerState.lastUpdated || new Date(),
+    containerId: state.containerId,
+    owner: state.owner,
+    origin: state.origin,
+    destination: state.destination,
+    currentLocation: state.currentLocation,
+    status: state.status,
+    loaded: state.loaded,
+    vesselName: state.vesselName,
+    arrivedAtPort: state.arrivedAtPort,
+    portName: state.portName,
+    unloaded: state.unloaded,
+    deliveryCompleted: state.deliveryCompleted,
+    temperature: state.temperature,
+    temperatureStatus: state.temperatureStatus,
+    humidity: state.humidity,
+    humidityStatus: state.humidityStatus,
+    doorOpen: state.doorOpen,
+    maxShockG: state.maxShockG,
+    geofenceBreached: state.geofenceBreached,
+    coordinates: state.coordinates,
+    currentVersion: state.currentVersion,
+    lastUpdated: state.lastUpdated || new Date(),
   };
 
-  await ContainerReadModel.findOneAndUpdate(
-    { containerId: containerState.containerId },
+  return await ContainerReadModel.findOneAndUpdate(
+    { containerId: state.containerId },
     projectionData,
     { upsert: true, new: true }
   );
 }
 
 /**
- * Rebuilds all read model projections from scratch by reading the immutable Event Store.
+ * Rebuilds all projections from scratch by reading all events from the Event Store.
  */
 async function rebuildAllProjections() {
-  console.log('🔄 Clearing ContainerReadModel collection...');
   await ContainerReadModel.deleteMany({});
-
-  console.log('📦 Reading all events from Event Store...');
-  const allEvents = await Event.find({}).sort({ aggregateId: 1, version: 1 }).lean().exec();
-
-  if (allEvents.length === 0) {
-    console.log('ℹ️ No events found in Event Store.');
-    return { containersRebuilt: 0, eventsProcessed: 0 };
-  }
-
-  // Group events by aggregateId
-  const eventsByAggregate = {};
-  for (const event of allEvents) {
-    if (!eventsByAggregate[event.aggregateId]) {
-      eventsByAggregate[event.aggregateId] = [];
-    }
-    eventsByAggregate[event.aggregateId].push(event);
-  }
-
+  const aggregateIds = await Event.distinct('aggregateId');
   let count = 0;
-  for (const [containerId, events] of Object.entries(eventsByAggregate)) {
-    const finalState = replayEvents(events, containerId);
-    await updateContainerProjection(finalState);
+
+  for (const id of aggregateIds) {
+    const events = await Event.find({ aggregateId: id }).sort({ version: 1 });
+    const reconstructedState = replayEvents(events, id);
+    await updateContainerProjection(reconstructedState);
     count++;
   }
 
-  console.log(`✅ Projection rebuild complete! Processed ${allEvents.length} events across ${count} containers.`);
-  return { containersRebuilt: count, eventsProcessed: allEvents.length };
+  return { success: true, containersRebuilt: count };
 }
 
 module.exports = {

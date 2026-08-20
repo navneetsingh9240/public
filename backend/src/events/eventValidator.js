@@ -44,11 +44,16 @@ function validateCommand(eventType, currentState, payload = {}) {
       break;
 
     case EventTypes.TEMPERATURE_RECORDED:
+    case EventTypes.TEMPERATURE_SPIKE:
+    case EventTypes.HUMIDITY_SPIKE:
+    case EventTypes.CARGO_SHOCK_DETECTED:
+    case EventTypes.DOOR_OPENED:
+    case EventTypes.DOOR_CLOSED:
+    case EventTypes.GEOFENCE_EXITED:
+    case EventTypes.UNAUTHORIZED_ROUTE_DEVIATION:
+    case EventTypes.TELEMETRY_RECORDED:
       if (currentState.status === 'NON_EXISTENT') {
-        throw new ValidationError('Cannot record temperature for a non-existent container.');
-      }
-      if (payload.temperature === undefined || payload.temperature === null || isNaN(Number(payload.temperature))) {
-        throw new ValidationError('A valid numeric temperature value is required.');
+        throw new ValidationError('Cannot record temperature or sensor telemetry for a non-existent container.');
       }
       break;
 

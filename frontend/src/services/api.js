@@ -69,6 +69,11 @@ export const recordTemperature = async (containerId, payload) => {
   return res.data;
 };
 
+export const recordTelemetry = async (containerId, payload) => {
+  const res = await api.post(`/commands/containers/${containerId}/telemetry`, payload);
+  return res.data;
+};
+
 export const arriveContainer = async (containerId, payload) => {
   const res = await api.post(`/commands/containers/${containerId}/arrive`, payload);
   return res.data;

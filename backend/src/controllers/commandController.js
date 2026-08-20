@@ -71,6 +71,29 @@ async function handleRecordTemperature(req, res, next) {
   }
 }
 
+async function handleRecordTelemetry(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { temperature, humidity, shockG, doorOpen, latitude, longitude, location, geofenceBreached, expectedVersion } = req.body;
+    const result = await commandHandlers.recordTelemetry({
+      containerId: id,
+      temperature,
+      humidity,
+      shockG,
+      doorOpen,
+      latitude,
+      longitude,
+      location,
+      geofenceBreached,
+      expectedVersion,
+      io: req.app.get('io'),
+    });
+    res.status(200).json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function handleArriveContainer(req, res, next) {
   try {
     const { id } = req.params;
@@ -126,6 +149,7 @@ module.exports = {
   handleLoadContainer,
   handleMoveContainer,
   handleRecordTemperature,
+  handleRecordTelemetry,
   handleArriveContainer,
   handleUnloadContainer,
   handleCompleteDelivery,
