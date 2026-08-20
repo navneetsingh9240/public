@@ -3,7 +3,9 @@ import { RefreshCw, ArrowLeft, Layers, ShieldCheck, AlertCircle } from 'lucide-r
 import * as api from '../services/api';
 import ContainerSummary from '../components/ContainerSummary';
 import HistoricalSlider from '../components/HistoricalSlider';
+import StateDiffView from '../components/StateDiffView';
 import TemperatureChart from '../components/TemperatureChart';
+import RouteMap from '../components/RouteMap';
 import LocationHistory from '../components/LocationHistory';
 import IntegrityBadge from '../components/IntegrityBadge';
 import EventTimeline from '../components/EventTimeline';
@@ -148,6 +150,18 @@ export default function ContainerDetails({ containerId, onBack, socket }) {
         events={events}
         currentReconstructedVersion={selectedVersion}
         onVersionSelect={handleVersionSelect}
+      />
+
+      {/* Side-by-Side Time Travel State Diff View */}
+      <StateDiffView
+        containerId={containerId}
+        maxVersion={currentState?.currentVersion || 1}
+        events={events}
+      />
+
+      {/* Interactive GIS Route Tracker Map */}
+      <RouteMap
+        locationHistory={displayedState?.locationHistory || []}
       />
 
       {/* Command Operations Panel */}
