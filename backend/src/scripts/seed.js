@@ -138,6 +138,9 @@ async function seed() {
       recipient: 'Apex Logistics LLC',
     });
 
+    console.log('🔗 Anchoring completed CNT-1002 Merkle root to Polygon PoS...');
+    await commandHandlers.anchorContainerBlockchain({ containerId: 'CNT-1002' });
+
     console.log('🌱 Seeding CNT-1003 (Pharma cargo in transit)...');
     await commandHandlers.createContainer({
       containerId: 'CNT-1003',

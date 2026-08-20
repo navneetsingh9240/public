@@ -241,6 +241,85 @@ describe('Cryptographic Event Hash Chain & Integrity Verification Tests', () => 
   });
 });
 
+describe('Merkle Tree & Blockchain Anchoring Tests', () => {
+  test('Generates Merkle tree proof and verifies proof against aggregate events', async () => {
+    await request(app)
+      .post('/api/commands/containers')
+      .send({ containerId: 'TEST-MERKLE-1', owner: 'Merkle Express' });
+
+    await request(app)
+      .post('/api/commands/containers/TEST-MERKLE-1/load')
+      .send({ vesselName: 'Merkle Ship' });
+
+    const proofRes = await request(app).get('/api/queries/containers/TEST-MERKLE-1/merkle-proof');
+    expect(proofRes.status).toBe(200);
+    expect(proofRes.body.data.root).toBeDefined();
+    expect(proofRes.body.data.verified).toBe(true);
+  });
+
+  test('Anchors Merkle root to Polygon PoS blockchain and retrieves anchor receipt', async () => {
+    await request(app)
+      .post('/api/commands/containers')
+      .send({ containerId: 'TEST-ANCHOR-1', owner: 'Anchor Corp' });
+
+    const anchorRes = await request(app).post('/api/commands/containers/TEST-ANCHOR-1/anchor');
+    expect(anchorRes.status).toBe(200);
+    expect(anchorRes.body.anchor.network).toBe('Polygon PoS Mainnet');
+    expect(anchorRes.body.anchor.txHash).toMatch(/^0x[a-f0-9]{64}$/);
+
+    const queryRes = await request(app).get('/api/queries/containers/TEST-ANCHOR-1/anchor');
+    expect(queryRes.status).toBe(200);
+    expect(queryRes.body.count).toBe(1);
+    expect(queryRes.body.data[0].txHash).toBe(anchorRes.body.anchor.txHash);
+  });
+});
+
+describe('Ed25519 Asymmetric Digital Signature Tests', () => {
+  const { generateCarrierKeyPair, signEventPayload } = require('../src/utils/cryptoSign');
+
+  test('Accepts valid Ed25519 carrier signature on command execution', async () => {
+    const keyPair = generateCarrierKeyPair();
+    const payload = { owner: 'Carrier Corp', origin: 'Origin Port', destination: 'Destination Port', initialLocation: 'Singapore', initialTemperature: 4.0 };
+    const signature = signEventPayload(payload, keyPair.privateKey);
+
+    const res = await request(app)
+      .post('/api/commands/containers')
+      .send({
+        containerId: 'TEST-SIG-1',
+        ...payload,
+        signature,
+        publicKey: keyPair.publicKey,
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.event.payload._carrierSignature).toBe(signature);
+  });
+
+  test('Rejects command with invalid/tampered Ed25519 carrier signature', async () => {
+    const keyPair = generateCarrierKeyPair();
+    const payload = { owner: 'Carrier Corp', origin: 'Origin Port', destination: 'Destination Port', initialLocation: 'Singapore', initialTemperature: 4.0 };
+    const signature = signEventPayload(payload, keyPair.privateKey);
+
+    // Tamper payload after signing (change owner)
+    const res = await request(app)
+      .post('/api/commands/containers')
+      .send({
+        containerId: 'TEST-SIG-2',
+        owner: 'TAMPERED_OWNER',
+        origin: 'Origin Port',
+        destination: 'Destination Port',
+        initialLocation: 'Singapore',
+        initialTemperature: 4.0,
+        signature,
+        publicKey: keyPair.publicKey,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('ValidationError');
+    expect(res.body.message).toMatch(/signature verification failed/);
+  });
+});
+
 describe('Projection Worker & Read Model Rebuild Tests', () => {
   test('Rebuilding projections from Event Store accurately recreates ContainerReadModel', async () => {
     await request(app)

@@ -1,4 +1,5 @@
 const EventTypes = require('./eventTypes');
+const { verifyEventSignature } = require('../utils/cryptoSign');
 
 class ValidationError extends Error {
   constructor(message) {
@@ -11,7 +12,15 @@ class ValidationError extends Error {
 /**
  * Validates domain business rules against the reconstructed current state before issuing a new event.
  */
-function validateCommand(eventType, currentState, payload = {}) {
+function validateCommand(eventType, currentState, payload = {}, signature = null, publicKey = null) {
+  // Validate Ed25519 digital signature if provided
+  if (signature && publicKey) {
+    const isSignatureValid = verifyEventSignature(payload, signature, publicKey);
+    if (!isSignatureValid) {
+      throw new ValidationError('Invalid digital signature. Carrier signature verification failed for this telemetry/command payload.');
+    }
+  }
+
   switch (eventType) {
     case EventTypes.CONTAINER_CREATED:
       if (currentState.status !== 'NON_EXISTENT') {

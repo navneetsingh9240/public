@@ -9,5 +9,7 @@ router.get('/containers/:id/timeline', queryController.handleGetContainerTimelin
 router.get('/containers/:id/state-at', queryController.handleGetHistoricalState);
 router.get('/containers/:id/metrics', queryController.handleGetContainerMetrics);
 router.get('/containers/:id/integrity', queryController.handleGetContainerIntegrity);
+router.get('/containers/:id/merkle-proof', queryController.handleGetMerkleProof);
+router.get('/containers/:id/anchor', queryController.handleGetContainerAnchors);
 
 module.exports = router;

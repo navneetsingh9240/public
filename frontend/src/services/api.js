@@ -48,6 +48,16 @@ export const getContainerIntegrity = async (containerId) => {
   return res.data;
 };
 
+export const getMerkleProof = async (containerId, index = 0) => {
+  const res = await api.get(`/queries/containers/${containerId}/merkle-proof?index=${index}`);
+  return res.data;
+};
+
+export const getContainerAnchors = async (containerId) => {
+  const res = await api.get(`/queries/containers/${containerId}/anchor`);
+  return res.data;
+};
+
 // Command endpoints
 export const createContainer = async (payload) => {
   const res = await api.post('/commands/containers', payload);
@@ -86,6 +96,11 @@ export const unloadContainer = async (containerId, payload) => {
 
 export const completeDelivery = async (containerId, payload) => {
   const res = await api.post(`/commands/containers/${containerId}/complete`, payload);
+  return res.data;
+};
+
+export const anchorContainer = async (containerId) => {
+  const res = await api.post(`/commands/containers/${containerId}/anchor`);
   return res.data;
 };
 

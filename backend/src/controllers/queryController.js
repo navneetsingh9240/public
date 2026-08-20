@@ -1,6 +1,8 @@
 const queryHandlers = require('../queries/queryHandlers');
 const ContainerReadModel = require('../models/ContainerReadModel');
 const Event = require('../models/Event');
+const AnchorRecord = require('../models/AnchorRecord');
+const { buildMerkleTree, getMerkleProof, verifyMerkleProof } = require('../events/merkleTree');
 
 async function handleGetContainers(req, res, next) {
   try {
@@ -115,7 +117,61 @@ async function handleGetContainerIntegrity(req, res, next) {
   try {
     const { id } = req.params;
     const integrity = await queryHandlers.getContainerIntegrity(id);
-    res.status(200).json({ success: true, data: integrity });
+    const events = await queryHandlers.getContainerEvents(id);
+    const hashes = events.map(e => e.eventHash);
+    const { root: merkleRoot } = buildMerkleTree(hashes);
+    const anchors = await AnchorRecord.find({ aggregateId: id }).sort({ createdAt: -1 }).lean().exec();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ...integrity,
+        merkleRoot,
+        totalAnchors: anchors.length,
+        latestAnchor: anchors[0] || null
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function handleGetMerkleProof(req, res, next) {
+  try {
+    const { id } = req.params;
+    const index = parseInt(req.query.index || '0', 10);
+    const events = await queryHandlers.getContainerEvents(id);
+    const hashes = events.map(e => e.eventHash);
+
+    const proof = getMerkleProof(hashes, index);
+    if (!proof) {
+      return res.status(400).json({ error: 'Bad Request', message: `Invalid event index ${index} for container '${id}'.` });
+    }
+
+    const isValid = verifyMerkleProof(proof.leaf, proof.proof, proof.root);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        containerId: id,
+        eventIndex: index,
+        event: events[index],
+        proof: proof.proof,
+        leaf: proof.leaf,
+        root: proof.root,
+        verified: isValid
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function handleGetContainerAnchors(req, res, next) {
+  try {
+    const { id } = req.params;
+    const anchors = await AnchorRecord.find({ aggregateId: id }).sort({ createdAt: -1 }).lean().exec();
+    res.status(200).json({ success: true, count: anchors.length, data: anchors });
   } catch (err) {
     next(err);
   }
@@ -129,4 +185,6 @@ module.exports = {
   handleGetHistoricalState,
   handleGetContainerMetrics,
   handleGetContainerIntegrity,
+  handleGetMerkleProof,
+  handleGetContainerAnchors,
 };

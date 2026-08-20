@@ -10,5 +10,6 @@ router.post('/containers/:id/telemetry', commandController.handleRecordTelemetry
 router.post('/containers/:id/arrive', commandController.handleArriveContainer);
 router.post('/containers/:id/unload', commandController.handleUnloadContainer);
 router.post('/containers/:id/complete', commandController.handleCompleteDelivery);
+router.post('/containers/:id/anchor', commandController.handleAnchorContainer);
 
 module.exports = router;

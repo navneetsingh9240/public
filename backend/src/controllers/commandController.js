@@ -2,7 +2,7 @@ const commandHandlers = require('../commands/commandHandlers');
 
 async function handleCreateContainer(req, res, next) {
   try {
-    const { containerId, owner, origin, destination, initialLocation, initialTemperature, expectedVersion } = req.body;
+    const { containerId, owner, origin, destination, initialLocation, initialTemperature, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.createContainer({
       containerId,
       owner,
@@ -11,6 +11,8 @@ async function handleCreateContainer(req, res, next) {
       initialLocation,
       initialTemperature,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(201).json({ success: true, ...result });
@@ -22,12 +24,14 @@ async function handleCreateContainer(req, res, next) {
 async function handleLoadContainer(req, res, next) {
   try {
     const { id } = req.params;
-    const { vesselName, location, expectedVersion } = req.body;
+    const { vesselName, location, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.loadContainer({
       containerId: id,
       vesselName,
       location,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
@@ -39,12 +43,14 @@ async function handleLoadContainer(req, res, next) {
 async function handleMoveContainer(req, res, next) {
   try {
     const { id } = req.params;
-    const { location, notes, expectedVersion } = req.body;
+    const { location, notes, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.moveContainer({
       containerId: id,
       location,
       notes,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
@@ -56,13 +62,15 @@ async function handleMoveContainer(req, res, next) {
 async function handleRecordTemperature(req, res, next) {
   try {
     const { id } = req.params;
-    const { temperature, location, threshold, expectedVersion } = req.body;
+    const { temperature, location, threshold, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.recordTemperature({
       containerId: id,
       temperature,
       location,
       threshold,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
@@ -74,7 +82,7 @@ async function handleRecordTemperature(req, res, next) {
 async function handleRecordTelemetry(req, res, next) {
   try {
     const { id } = req.params;
-    const { temperature, humidity, shockG, doorOpen, latitude, longitude, location, geofenceBreached, expectedVersion } = req.body;
+    const { temperature, humidity, shockG, doorOpen, latitude, longitude, location, geofenceBreached, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.recordTelemetry({
       containerId: id,
       temperature,
@@ -86,6 +94,8 @@ async function handleRecordTelemetry(req, res, next) {
       location,
       geofenceBreached,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
@@ -97,12 +107,14 @@ async function handleRecordTelemetry(req, res, next) {
 async function handleArriveContainer(req, res, next) {
   try {
     const { id } = req.params;
-    const { portName, location, expectedVersion } = req.body;
+    const { portName, location, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.arriveContainer({
       containerId: id,
       portName,
       location,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
@@ -114,11 +126,13 @@ async function handleArriveContainer(req, res, next) {
 async function handleUnloadContainer(req, res, next) {
   try {
     const { id } = req.params;
-    const { location, expectedVersion } = req.body;
+    const { location, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.unloadContainer({
       containerId: id,
       location,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
@@ -130,15 +144,30 @@ async function handleUnloadContainer(req, res, next) {
 async function handleCompleteDelivery(req, res, next) {
   try {
     const { id } = req.params;
-    const { location, recipient, expectedVersion } = req.body;
+    const { location, recipient, expectedVersion, signature, publicKey } = req.body;
     const result = await commandHandlers.completeDelivery({
       containerId: id,
       location,
       recipient,
       expectedVersion,
+      signature,
+      publicKey,
       io: req.app.get('io'),
     });
     res.status(200).json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function handleAnchorContainer(req, res, next) {
+  try {
+    const { id } = req.params;
+    const result = await commandHandlers.anchorContainerBlockchain({
+      containerId: id,
+      io: req.app.get('io'),
+    });
+    res.status(200).json({ success: true, anchor: result });
   } catch (err) {
     next(err);
   }
@@ -153,4 +182,5 @@ module.exports = {
   handleArriveContainer,
   handleUnloadContainer,
   handleCompleteDelivery,
+  handleAnchorContainer,
 };
