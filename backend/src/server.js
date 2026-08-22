@@ -52,23 +52,7 @@ io.on('connection', (socket) => {
   });
 });
 
-let isConnected = false;
-async function connectDB(uri = MONGO_URI) {
-  if (isConnected) return;
-  try {
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 2000 });
-    isConnected = true;
-    console.log(`🍃 MongoDB connected successfully at ${uri}`);
-  } catch (err) {
-    console.log('Local MongoDB connection failed. Starting MongoMemoryServer fallback...');
-    const { MongoMemoryServer } = require('mongodb-memory-server');
-    const mongod = await MongoMemoryServer.create({ instance: { port: 27017 } });
-    const memoryUri = `${mongod.getUri()}audittrail`;
-    await mongoose.connect(memoryUri);
-    isConnected = true;
-    console.log(`🍃 MongoMemoryServer connected successfully at ${memoryUri}`);
-  }
-}
+const connectDB = require('./config/db');
 
 if (process.env.NODE_ENV !== 'test') {
   connectDB().then(() => {
