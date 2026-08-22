@@ -11,5 +11,6 @@ router.get('/containers/:id/metrics', queryController.handleGetContainerMetrics)
 router.get('/containers/:id/integrity', queryController.handleGetContainerIntegrity);
 router.get('/containers/:id/merkle-proof', queryController.handleGetMerkleProof);
 router.get('/containers/:id/anchor', queryController.handleGetContainerAnchors);
+router.get('/analytics/risk-heatmaps', queryController.handleGetFleetRiskAnalytics);
 
 module.exports = router;

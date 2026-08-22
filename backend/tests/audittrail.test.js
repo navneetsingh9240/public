@@ -320,6 +320,30 @@ describe('Ed25519 Asymmetric Digital Signature Tests', () => {
   });
 });
 
+describe('Fleet Risk Analytics & Geospatial Heatmap Tests', () => {
+  test('Fetches aggregated fleet risk analytics for risk events', async () => {
+    await request(app)
+      .post('/api/commands/containers')
+      .send({ containerId: 'TEST-RISK-1', owner: 'Risk Corp' });
+
+    await request(app)
+      .post('/api/commands/containers/TEST-RISK-1/telemetry')
+      .send({
+        temperature: 15.0,
+        humidity: 80,
+        shockG: 3.5,
+        location: 'Arabian Sea',
+      });
+
+    const res = await request(app).get('/api/queries/analytics/risk-heatmaps');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.totalIncidents).toBeGreaterThanOrEqual(2);
+    expect(res.body.data.incidents[0].latitude).toBeDefined();
+    expect(res.body.data.incidents[0].longitude).toBeDefined();
+  });
+});
+
 describe('Projection Worker & Read Model Rebuild Tests', () => {
   test('Rebuilding projections from Event Store accurately recreates ContainerReadModel', async () => {
     await request(app)

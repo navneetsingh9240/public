@@ -49,9 +49,74 @@ async function getContainerIntegrity(containerId) {
   return verifyEventChain(events);
 }
 
+/**
+ * Scans event store across all aggregates for risk incidents
+ * (TEMPERATURE_SPIKE, HUMIDITY_SPIKE, CARGO_SHOCK_DETECTED, GEOFENCE_EXITED)
+ * and returns risk hotspots with GPS coordinates and severity scores.
+ */
+async function getFleetRiskAnalytics() {
+  const Event = require('../models/Event');
+  const riskTypes = [
+    'TEMPERATURE_SPIKE',
+    'HUMIDITY_SPIKE',
+    'CARGO_SHOCK_DETECTED',
+    'GEOFENCE_EXITED',
+    'UNAUTHORIZED_ROUTE_DEVIATION'
+  ];
+
+  const riskEvents = await Event.find({ eventType: { $in: riskTypes } })
+    .sort({ timestamp: -1 })
+    .lean()
+    .exec();
+
+  const knownCoordinates = {
+    'Arabian Sea': { lat: 15.5, lng: 65.0 },
+    'Malacca Strait': { lat: 2.5, lng: 101.8 },
+    'North Atlantic Ocean': { lat: 45.0, lng: -30.0 },
+    'Suez Canal': { lat: 27.8, lng: 34.3 },
+    'Red Sea Transit Zone': { lat: 20.0, lng: 38.5 },
+    'Singapore Terminal 3': { lat: 1.26, lng: 103.82 },
+    'Mumbai Port Berth 4': { lat: 18.95, lng: 72.84 },
+    'Rotterdam ECT Gateway': { lat: 51.95, lng: 4.14 },
+    'New York Container Terminal': { lat: 40.64, lng: -74.15 }
+  };
+
+  const incidents = riskEvents.map(evt => {
+    const locName = evt.payload?.location || 'Unknown Maritime Zone';
+    const knownPos = knownCoordinates[locName] || { lat: 12.0, lng: 70.0 };
+    const lat = evt.payload?.latitude !== undefined ? Number(evt.payload.latitude) : knownPos.lat;
+    const lng = evt.payload?.longitude !== undefined ? Number(evt.payload.longitude) : knownPos.lng;
+
+    let riskLevel = 'MEDIUM';
+    if (evt.eventType === 'TEMPERATURE_SPIKE' && evt.payload?.temperature > 12) riskLevel = 'CRITICAL';
+    if (evt.eventType === 'CARGO_SHOCK_DETECTED' && evt.payload?.gForce > 3.0) riskLevel = 'CRITICAL';
+    if (evt.eventType === 'GEOFENCE_EXITED') riskLevel = 'HIGH';
+
+    return {
+      eventId: evt.eventId,
+      containerId: evt.aggregateId,
+      eventType: evt.eventType,
+      location: locName,
+      latitude: lat,
+      longitude: lng,
+      timestamp: evt.timestamp,
+      riskLevel,
+      details: evt.payload
+    };
+  });
+
+  return {
+    totalIncidents: incidents.length,
+    criticalCount: incidents.filter(i => i.riskLevel === 'CRITICAL').length,
+    highCount: incidents.filter(i => i.riskLevel === 'HIGH').length,
+    incidents
+  };
+}
+
 module.exports = {
   getContainerState,
   getHistoricalState,
   getContainerEvents,
   getContainerIntegrity,
+  getFleetRiskAnalytics,
 };

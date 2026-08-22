@@ -177,6 +177,15 @@ async function handleGetContainerAnchors(req, res, next) {
   }
 }
 
+async function handleGetFleetRiskAnalytics(req, res, next) {
+  try {
+    const analytics = await queryHandlers.getFleetRiskAnalytics();
+    res.status(200).json({ success: true, data: analytics });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   handleGetContainers,
   handleGetContainerState,
@@ -187,4 +196,5 @@ module.exports = {
   handleGetContainerIntegrity,
   handleGetMerkleProof,
   handleGetContainerAnchors,
+  handleGetFleetRiskAnalytics,
 };

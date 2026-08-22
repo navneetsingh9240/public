@@ -58,6 +58,11 @@ export const getContainerAnchors = async (containerId) => {
   return res.data;
 };
 
+export const getFleetRiskAnalytics = async () => {
+  const res = await api.get('/queries/analytics/risk-heatmaps');
+  return res.data;
+};
+
 // Command endpoints
 export const createContainer = async (payload) => {
   const res = await api.post('/commands/containers', payload);
