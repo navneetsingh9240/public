@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node src/server.js",
-    "seed": "node src/scripts/seed.js",
-    "rebuild-projections": "node src/scripts/rebuildProjections.js",
+    "seed": "node ../database/scripts/seed.js",
+    "rebuild-projections": "node ../database/scripts/rebuildProjections.js",
     "test": "jest --detectOpenHandles --forceExit"
   },
   "dependencies": {
