@@ -105,24 +105,21 @@ export default function ContainerSummary({ state, integrity, totalEvents, isHist
           </div>
         </div>
 
-        {/* Security & Shock Card */}
+        {/* Security Lock Card */}
         <div className={`border rounded-lg p-3 ${
-          isShockSpike || state.doorOpen ? 'bg-amber-950/20 border-amber-500/30' : 'bg-slate-950/60 border-slate-800/80'
+          state.doorOpen ? 'bg-amber-950/20 border-amber-500/30' : 'bg-slate-950/60 border-slate-800/80'
         }`}>
           <div className="flex items-center justify-between text-slate-400 mb-1">
-            <span className="text-[11px] font-medium">Door / Shock G</span>
+            <span className="text-[11px] font-medium">Cargo Lock</span>
             {state.doorOpen ? <DoorOpen className="w-3.5 h-3.5 text-amber-400" /> : <DoorClosed className="w-3.5 h-3.5 text-emerald-400" />}
           </div>
           <div className="flex items-center justify-between">
             <span className={`text-xs font-semibold ${state.doorOpen ? 'text-amber-300' : 'text-emerald-400'}`}>
-              {state.doorOpen ? 'DOOR OPEN' : 'LOCKED'}
-            </span>
-            <span className={`text-xs font-mono font-bold flex items-center gap-0.5 ${isShockSpike ? 'text-rose-400' : 'text-slate-300'}`}>
-              <Zap className="w-3 h-3" /> {state.maxShockG || 0}G
+              {state.doorOpen ? 'UNLOCKED' : 'LOCKED & SECURED'}
             </span>
           </div>
           <div className="text-[10px] text-slate-400 mt-1 truncate">
-            {isShockSpike ? '⚠️ Cargo Shock Alert' : 'Normal Shock Levels'}
+            {state.doorOpen ? '⚠️ Security Seal Alert' : 'Tamper Seal Intact'}
           </div>
         </div>
 

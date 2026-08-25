@@ -173,19 +173,6 @@ function applyEvent(state, event) {
       ];
       break;
 
-    case EventTypes.CARGO_SHOCK_DETECTED:
-      newState.maxShockG = Math.max(newState.maxShockG, payload.gForce || 0);
-      newState.shockEvents = [
-        ...newState.shockEvents,
-        {
-          timestamp: event.timestamp,
-          gForce: payload.gForce,
-          threshold: payload.threshold || 2.5,
-          location: payload.location || newState.currentLocation,
-        },
-      ];
-      break;
-
     case EventTypes.DOOR_OPENED:
       newState.doorOpen = true;
       newState.doorAccessLogs = [

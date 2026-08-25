@@ -14,7 +14,6 @@ export default function CommandPanel({ containerId, currentVersion, onCommandSuc
   const [location, setLocation] = useState('');
   const [temperature, setTemperature] = useState('6.5');
   const [humidity, setHumidity] = useState('55');
-  const [shockG, setShockG] = useState('0.2');
   const [doorOpen, setDoorOpen] = useState(false);
   const [latitude, setLatitude] = useState('10.2');
   const [longitude, setLongitude] = useState('65.4');
@@ -63,7 +62,6 @@ export default function CommandPanel({ containerId, currentVersion, onCommandSuc
         res = await api.recordTelemetry(containerId, {
           temperature: Number(temperature),
           humidity: Number(humidity),
-          shockG: Number(shockG),
           doorOpen,
           latitude: Number(latitude),
           longitude: Number(longitude),
@@ -206,18 +204,6 @@ export default function CommandPanel({ containerId, currentVersion, onCommandSuc
                   value={humidity}
                   onChange={(e) => setHumidity(e.target.value)}
                   placeholder="e.g. 80 (>75% triggers SPIKE)"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Shock Acceleration (G)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={shockG}
-                  onChange={(e) => setShockG(e.target.value)}
-                  placeholder="e.g. 3.2 (>2.5G triggers SHOCK)"
                   className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-mono"
                 />
               </div>

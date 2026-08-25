@@ -40,7 +40,6 @@ export default function FleetRiskHeatmap({ riskData }) {
   const filteredIncidents = incidents.filter((inc) => {
     if (filterType === 'ALL') return true;
     if (filterType === 'TEMPERATURE_SPIKE') return inc.eventType === 'TEMPERATURE_SPIKE';
-    if (filterType === 'CARGO_SHOCK_DETECTED') return inc.eventType === 'CARGO_SHOCK_DETECTED';
     if (filterType === 'GEOFENCE_EXITED') return inc.eventType === 'GEOFENCE_EXITED';
     return true;
   });
@@ -96,7 +95,6 @@ export default function FleetRiskHeatmap({ riskData }) {
         {[
           { id: 'ALL', label: 'All Incidents', icon: ShieldAlert },
           { id: 'TEMPERATURE_SPIKE', label: 'Thermal Spikes', icon: Thermometer },
-          { id: 'CARGO_SHOCK_DETECTED', label: 'Cargo Shocks', icon: Zap },
           { id: 'GEOFENCE_EXITED', label: 'Geofence Exits', icon: Navigation },
         ].map((tab) => {
           const Icon = tab.icon;

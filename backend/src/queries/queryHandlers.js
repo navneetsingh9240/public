@@ -59,7 +59,6 @@ async function getFleetRiskAnalytics() {
   const riskTypes = [
     'TEMPERATURE_SPIKE',
     'HUMIDITY_SPIKE',
-    'CARGO_SHOCK_DETECTED',
     'GEOFENCE_EXITED',
     'UNAUTHORIZED_ROUTE_DEVIATION'
   ];
@@ -89,7 +88,6 @@ async function getFleetRiskAnalytics() {
 
     let riskLevel = 'MEDIUM';
     if (evt.eventType === 'TEMPERATURE_SPIKE' && evt.payload?.temperature > 12) riskLevel = 'CRITICAL';
-    if (evt.eventType === 'CARGO_SHOCK_DETECTED' && evt.payload?.gForce > 3.0) riskLevel = 'CRITICAL';
     if (evt.eventType === 'GEOFENCE_EXITED') riskLevel = 'HIGH';
 
     return {

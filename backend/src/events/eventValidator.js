@@ -55,7 +55,6 @@ function validateCommand(eventType, currentState, payload = {}, signature = null
     case EventTypes.TEMPERATURE_RECORDED:
     case EventTypes.TEMPERATURE_SPIKE:
     case EventTypes.HUMIDITY_SPIKE:
-    case EventTypes.CARGO_SHOCK_DETECTED:
     case EventTypes.DOOR_OPENED:
     case EventTypes.DOOR_CLOSED:
     case EventTypes.GEOFENCE_EXITED:

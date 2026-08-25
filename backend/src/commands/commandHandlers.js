@@ -183,22 +183,7 @@ async function recordTelemetry({ containerId, temperature, humidity, shockG, doo
     currentExpectedVersion = humRes.event.version;
   }
 
-  // 3. Shock G-Force breach (>2.5G)
-  if (shockVal > 2.5) {
-    const shockRes = await executeCommand({
-      aggregateId: containerId,
-      eventType: EventTypes.CARGO_SHOCK_DETECTED,
-      payload: { gForce: shockVal, threshold: 2.5, location: locVal },
-      expectedVersion: currentExpectedVersion,
-      signature,
-      publicKey,
-      io,
-    });
-    generatedEvents.push(shockRes.event);
-    currentExpectedVersion = shockRes.event.version;
-  }
-
-  // 4. Door state toggle
+  // 3. Door state toggle
   if (doorOpen !== undefined && doorOpen !== currentState.doorOpen) {
     const doorType = doorOpen ? EventTypes.DOOR_OPENED : EventTypes.DOOR_CLOSED;
     const doorRes = await executeCommand({

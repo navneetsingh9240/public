@@ -106,7 +106,7 @@ describe('AuditTrail Event Store Immutability Tests', () => {
 });
 
 describe('Multi-Sensor Telemetry & Geofencing Tests', () => {
-  test('Records IoT sensor telemetry and triggers door access, shock breaches, and geofence events', async () => {
+  test('Records IoT sensor telemetry and triggers door access and geofence events', async () => {
     await request(app)
       .post('/api/commands/containers')
       .send({ containerId: 'TEST-IOT-1', owner: 'Sensor Logistics' });
@@ -116,7 +116,6 @@ describe('Multi-Sensor Telemetry & Geofencing Tests', () => {
       .send({
         temperature: 14.5, // Temperature spike (>8.0°C)
         humidity: 88, // Humidity spike (>75%)
-        shockG: 4.2, // Cargo shock breach (>2.5G)
         doorOpen: true, // Door opened
         latitude: -75.0, // Out of bounds geofence
         longitude: 10.0,
@@ -126,13 +125,12 @@ describe('Multi-Sensor Telemetry & Geofencing Tests', () => {
     expect(res.status).toBe(200);
     expect(res.body.state.temperature).toBe(14.5);
     expect(res.body.state.humidityStatus).toBe('WARNING');
-    expect(res.body.state.maxShockG).toBe(4.2);
     expect(res.body.state.doorOpen).toBe(true);
     expect(res.body.state.geofenceBreached).toBe(true);
 
     const eventCount = await Event.countDocuments({ aggregateId: 'TEST-IOT-1' });
-    // Expected events: 1 (CREATED) + 5 (TEMP_SPIKE, HUMIDITY_SPIKE, SHOCK, DOOR_OPENED, GEOFENCE_EXITED) = 6
-    expect(eventCount).toBe(6);
+    // Expected events: 1 (CREATED) + 4 (TEMP_SPIKE, HUMIDITY_SPIKE, DOOR_OPENED, GEOFENCE_EXITED) = 5
+    expect(eventCount).toBe(5);
   });
 });
 
