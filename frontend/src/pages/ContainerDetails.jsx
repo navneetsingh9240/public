@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, ArrowLeft, Layers, ShieldCheck, AlertCircle } from 'lucide-react';
+import { RefreshCw, ArrowLeft, Layers, ShieldCheck, AlertCircle, Award } from 'lucide-react';
 import * as api from '../services/api';
 import ContainerSummary from '../components/ContainerSummary';
+import AuditCertificateModal from '../components/AuditCertificateModal';
 import HistoricalSlider from '../components/HistoricalSlider';
 import StateDiffView from '../components/StateDiffView';
 import TemperatureChart from '../components/TemperatureChart';
@@ -19,6 +20,7 @@ export default function ContainerDetails({ containerId, onBack, socket }) {
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   const fetchContainerData = async (resetHistorical = false) => {
     try {
@@ -129,6 +131,13 @@ export default function ContainerDetails({ containerId, onBack, socket }) {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setShowCertificate(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-semibold transition-colors shadow-sm"
+          >
+            <Award className="w-3.5 h-3.5 text-purple-400" /> Export Audit Certificate
+          </button>
+
+          <button
             onClick={() => fetchContainerData()}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-mono font-medium transition-colors"
           >
@@ -191,6 +200,16 @@ export default function ContainerDetails({ containerId, onBack, socket }) {
       <EventTimeline
         events={events}
       />
+
+      {/* Audit Certificate Export Modal */}
+      {showCertificate && (
+        <AuditCertificateModal
+          containerState={displayedState}
+          integrity={integrity}
+          events={events}
+          onClose={() => setShowCertificate(false)}
+        />
+      )}
     </div>
   );
 }
