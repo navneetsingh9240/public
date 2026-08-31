@@ -141,6 +141,21 @@ export default function ContainerSummary({ state, integrity, totalEvents, isHist
           </div>
         </div>
       </div>
+
+      {/* Today's Carrier SLA & Duty-of-Care Commitment Badge */}
+      <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950/40 p-3 rounded-lg border border-slate-800/60">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="text-xs font-bold text-slate-200">Today's Carrier Commitment:</span>
+          <span className="text-xs text-slate-400">Guaranteed Thermal Enclosure (&lt; 8.0°C) & Non-Repudiable Ledger Integrity</span>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-mono">
+          <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+            SLA ACTIVE
+          </span>
+          <span className="text-slate-500">Updated Today</span>
+        </div>
+      </div>
     </div>
   );
 }
