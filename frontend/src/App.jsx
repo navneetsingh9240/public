@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ContainerDetails from './pages/ContainerDetails';
 import SearchBar from './components/SearchBar';
 import NotificationDrawer from './components/NotificationDrawer';
+import ThemeToggle from './components/ThemeToggle';
 import * as api from './services/api';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
@@ -117,6 +118,8 @@ export default function App() {
               notifications={notifications}
               onClearNotifications={() => setNotifications([])}
             />
+
+            <ThemeToggle />
 
             <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-400">
               <span className={`w-2 h-2 rounded-full ${socketConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
