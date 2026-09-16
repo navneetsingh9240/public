@@ -8,6 +8,7 @@ import StateDiffView from '../components/StateDiffView';
 import DeliverySlaIndicator from '../components/DeliverySlaIndicator';
 import CarrierScorecard from '../components/CarrierScorecard';
 import ColdChainSlaMetrics from '../components/ColdChainSlaMetrics';
+import SlaPredictorChart from '../components/SlaPredictorChart';
 import TemperatureChart from '../components/TemperatureChart';
 import RouteMap from '../components/RouteMap';
 import LocationHistory from '../components/LocationHistory';
@@ -196,6 +197,11 @@ export default function ContainerDetails({ containerId, onBack, socket }) {
 
       {/* Cold Chain SLA Analytics */}
       <ColdChainSlaMetrics
+        temperatureHistory={displayedState?.temperatureHistory || []}
+      />
+
+      {/* 12-Hour Thermal Trend & Excursion Predictor */}
+      <SlaPredictorChart
         temperatureHistory={displayedState?.temperatureHistory || []}
       />
 
