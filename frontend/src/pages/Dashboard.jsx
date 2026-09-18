@@ -15,6 +15,7 @@ import * as api from '../services/api';
 import FleetRiskHeatmap from '../components/FleetRiskHeatmap';
 import CompareContainersModal from '../components/CompareContainersModal';
 import ContainerComparisonWidget from '../components/ContainerComparisonWidget';
+import LiveTelemetryTicker from '../components/LiveTelemetryTicker';
 
 export default function Dashboard({ onSelectContainer }) {
   const [activeTab, setActiveTab] = useState('LEDGER');
@@ -122,6 +123,9 @@ export default function Dashboard({ onSelectContainer }) {
           </div>
         </div>
       </div>
+
+      {/* Live Real-time Telemetry Compliance Ticker */}
+      <LiveTelemetryTicker containers={containers} />
 
       {/* View Switcher Tabs */}
       <div className="flex items-center gap-3 border-b border-slate-800 pb-2">
