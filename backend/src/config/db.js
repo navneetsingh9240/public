@@ -1,22 +1,24 @@
-
 const mongoose = require('mongoose');
 
-async function connectDB() {
+async function connectDB(uri = process.env.MONGO_URI || 'mongodb://localhost:27017/audittrail') {
   try {
-    const uri = process.env.MONGO_URI;
-
-    if (!uri) {
-      throw new Error('MONGO_URI is missing in environment variables');
-    }
-
-    await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 10000,
-    });
-
-    console.log('🍃 MongoDB Atlas connected successfully!');
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
+    console.log(`🍃 MongoDB connected successfully at ${uri}`);
   } catch (err) {
-    console.error('❌ MongoDB connection failed:', err.message);
-    process.exit(1);
+    console.warn(`MongoDB connection to '${uri}' failed: ${err.message}`);
+
+    try {
+      console.log('Attempting MongoMemoryServer fallback for local development...');
+      const { MongoMemoryServer } = require('mongodb-memory-server');
+      const mongod = await MongoMemoryServer.create({ instance: { port: 27017 } });
+      const memoryUri = `${mongod.getUri()}audittrail`;
+      await mongoose.connect(memoryUri);
+      console.log(`🍃 MongoMemoryServer connected successfully at ${memoryUri}`);
+    } catch (fallbackErr) {
+      console.error('MongoMemoryServer fallback unavailable or failed.');
+      console.error('Please ensure MONGO_URI environment variable is configured correctly in your deployment environment.');
+      throw err;
+    }
   }
 }
 
