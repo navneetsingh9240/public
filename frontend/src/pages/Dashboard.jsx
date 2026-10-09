@@ -78,48 +78,48 @@ export default function Dashboard({ onSelectContainer }) {
   const totalBreaches = containers.filter((c) => c.temperatureStatus === 'WARNING' || c.temperatureStatus === 'CRITICAL').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Metrics Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex items-center justify-between">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-slate-400">Total Tracked Containers</div>
-            <div className="text-2xl font-bold font-mono text-white mt-1">{containers.length}</div>
+            <div className="text-[11px] sm:text-xs font-medium text-slate-400">Total Tracked</div>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-0.5 sm:mt-1">{containers.length}</div>
           </div>
-          <div className="p-3 bg-blue-600/10 border border-blue-500/20 rounded-xl text-blue-400">
-            <Container className="w-6 h-6" />
+          <div className="p-2 sm:p-3 bg-blue-600/10 border border-blue-500/20 rounded-xl text-blue-400">
+            <Container className="w-4 h-4 sm:w-6 sm:h-6" />
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex items-center justify-between">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-slate-400">Active Shipments</div>
-            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">{activeShipments}</div>
+            <div className="text-[11px] sm:text-xs font-medium text-slate-400">Active Shipments</div>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-0.5 sm:mt-1">{activeShipments}</div>
           </div>
-          <div className="p-3 bg-emerald-600/10 border border-emerald-500/20 rounded-xl text-emerald-400">
-            <Activity className="w-6 h-6" />
+          <div className="p-2 sm:p-3 bg-emerald-600/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+            <Activity className="w-4 h-4 sm:w-6 sm:h-6" />
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex items-center justify-between">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-slate-400">Thermal Breaches</div>
-            <div className="text-2xl font-bold font-mono text-rose-400 mt-1">{totalBreaches}</div>
+            <div className="text-[11px] sm:text-xs font-medium text-slate-400">Thermal Breaches</div>
+            <div className="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-0.5 sm:mt-1">{totalBreaches}</div>
           </div>
-          <div className="p-3 bg-rose-600/10 border border-rose-500/20 rounded-xl text-rose-400">
-            <TrendingUp className="w-6 h-6" />
+          <div className="p-2 sm:p-3 bg-rose-600/10 border border-rose-500/20 rounded-xl text-rose-400">
+            <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6" />
           </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex items-center justify-between">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 sm:p-4 shadow-lg flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-slate-400">Ledger Immutability</div>
-            <div className="text-sm font-bold font-mono text-emerald-400 mt-1 flex items-center gap-1">
-              <ShieldCheck className="w-4 h-4" /> 100% SHA-256
+            <div className="text-[11px] sm:text-xs font-medium text-slate-400">Ledger Status</div>
+            <div className="text-xs sm:text-sm font-bold font-mono text-emerald-400 mt-0.5 sm:mt-1 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 100% Valid
             </div>
           </div>
-          <div className="p-3 bg-purple-600/10 border border-purple-500/20 rounded-xl text-purple-400">
-            <Server className="w-6 h-6" />
+          <div className="p-2 sm:p-3 bg-purple-600/10 border border-purple-500/20 rounded-xl text-purple-400">
+            <Server className="w-4 h-4 sm:w-6 sm:h-6" />
           </div>
         </div>
       </div>
@@ -128,10 +128,10 @@ export default function Dashboard({ onSelectContainer }) {
       <LiveTelemetryTicker containers={containers} />
 
       {/* View Switcher Tabs */}
-      <div className="flex items-center gap-3 border-b border-slate-800 pb-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 border-b border-slate-800 pb-2">
         <button
           onClick={() => setActiveTab('LEDGER')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+          className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
             activeTab === 'LEDGER'
               ? 'bg-blue-600 text-white shadow-md'
               : 'bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400'
@@ -142,13 +142,13 @@ export default function Dashboard({ onSelectContainer }) {
 
         <button
           onClick={() => setActiveTab('RISK_MAP')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+          className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
             activeTab === 'RISK_MAP'
               ? 'bg-rose-600 text-white shadow-md'
               : 'bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400'
           }`}
         >
-          <ShieldAlert className="w-4 h-4" /> Fleet Risk Analytics & Heatmap
+          <ShieldAlert className="w-4 h-4" /> Fleet Risk Heatmap
           {riskData?.totalIncidents > 0 && (
             <span className="ml-1 px-2 py-0.5 bg-rose-950 text-rose-200 border border-rose-500/30 rounded-full text-[10px]">
               {riskData.totalIncidents}
@@ -177,38 +177,38 @@ export default function Dashboard({ onSelectContainer }) {
       {/* Main Containers Ledger List */}
       {activeTab === 'LEDGER' && (
         <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-lg overflow-hidden">
-          <div className="p-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Layers className="w-5 h-5 text-blue-400" /> Container Audit Ledger Index
+              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" /> Container Audit Ledger Index
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
                 Read model projections derived from the append-only event store.
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setShowCompareModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-semibold transition-colors"
+                className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-semibold transition-colors"
               >
-                <Layers className="w-3.5 h-3.5 text-blue-400" /> Compare Fleet Containers
+                <Layers className="w-3.5 h-3.5 text-blue-400" /> Compare Fleet
               </button>
 
               <button
                 onClick={fetchDashboardData}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-mono font-medium transition-colors"
+                className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 px-3 py-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-mono font-medium transition-colors"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh Index
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> Refresh
               </button>
             </div>
           </div>
 
           {/* Create Container Form Accordion / Box */}
-          <div className="bg-slate-950/60 p-4 border-b border-slate-800/80">
-            <form onSubmit={handleCreateNew} className="flex flex-col md:flex-row items-end gap-3">
-              <div className="flex-1 w-full">
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
+          <div className="bg-slate-950/60 p-3.5 sm:p-4 border-b border-slate-800/80">
+            <form onSubmit={handleCreateNew} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 items-end gap-3">
+              <div className="w-full">
+                <label className="block text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
                   Container ID
                 </label>
                 <input
@@ -219,8 +219,8 @@ export default function Dashboard({ onSelectContainer }) {
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="flex-1 w-full">
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
+              <div className="w-full">
+                <label className="block text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
                   Owner
                 </label>
                 <input
@@ -231,8 +231,8 @@ export default function Dashboard({ onSelectContainer }) {
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="flex-1 w-full">
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
+              <div className="w-full">
+                <label className="block text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
                   Origin
                 </label>
                 <input
@@ -243,8 +243,8 @@ export default function Dashboard({ onSelectContainer }) {
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="flex-1 w-full">
-                <label className="block text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
+              <div className="w-full">
+                <label className="block text-[10px] sm:text-[11px] font-semibold text-slate-400 mb-1 uppercase font-mono">
                   Destination
                 </label>
                 <input
@@ -258,7 +258,7 @@ export default function Dashboard({ onSelectContainer }) {
               <button
                 type="submit"
                 disabled={creating}
-                className="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-md shrink-0"
+                className="w-full sm:col-span-2 lg:col-span-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-md"
               >
                 <PlusCircle className="w-4 h-4" /> Create Container
               </button>
@@ -267,16 +267,16 @@ export default function Dashboard({ onSelectContainer }) {
 
           {/* Table / List */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[640px]">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-950/40 text-[11px] uppercase font-mono text-slate-400">
-                  <th className="p-4">Container ID</th>
-                  <th className="p-4">Owner</th>
-                  <th className="p-4">Current Location</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Temperature</th>
-                  <th className="p-4 text-center">Version</th>
-                  <th className="p-4 text-right">Actions</th>
+                <tr className="border-b border-slate-800 bg-slate-950/40 text-[10px] sm:text-[11px] uppercase font-mono text-slate-400">
+                  <th className="p-3 sm:p-4">Container ID</th>
+                  <th className="p-3 sm:p-4">Owner</th>
+                  <th className="p-3 sm:p-4">Current Location</th>
+                  <th className="p-3 sm:p-4">Status</th>
+                  <th className="p-3 sm:p-4">Temperature</th>
+                  <th className="p-3 sm:p-4 text-center">Version</th>
+                  <th className="p-3 sm:p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-xs font-mono">
@@ -295,18 +295,18 @@ export default function Dashboard({ onSelectContainer }) {
                         onClick={() => onSelectContainer(c.containerId)}
                         className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
                       >
-                        <td className="p-4 font-bold text-blue-400 flex items-center gap-2">
+                        <td className="p-3 sm:p-4 font-bold text-blue-400 flex items-center gap-2">
                           <Container className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-colors" />
                           {c.containerId}
                         </td>
-                        <td className="p-4 text-slate-300 font-sans">{c.owner || 'N/A'}</td>
-                        <td className="p-4 text-slate-200">{c.currentLocation || 'Unknown'}</td>
-                        <td className="p-4">
-                          <span className="px-2.5 py-1 rounded bg-slate-950 border border-slate-800 text-slate-300 font-semibold">
+                        <td className="p-3 sm:p-4 text-slate-300 font-sans">{c.owner || 'N/A'}</td>
+                        <td className="p-3 sm:p-4 text-slate-200">{c.currentLocation || 'Unknown'}</td>
+                        <td className="p-3 sm:p-4">
+                          <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded bg-slate-950 border border-slate-800 text-slate-300 font-semibold text-[11px]">
                             {c.status?.replace(/_/g, ' ')}
                           </span>
                         </td>
-                        <td className="p-4">
+                        <td className="p-3 sm:p-4">
                           {c.temperature !== null ? (
                             <span className={`font-bold ${isSpike ? 'text-rose-400' : 'text-slate-200'}`}>
                               {c.temperature.toFixed(1)}°C {isSpike && '⚠️'}
@@ -315,8 +315,8 @@ export default function Dashboard({ onSelectContainer }) {
                             <span className="text-slate-600">N/A</span>
                           )}
                         </td>
-                        <td className="p-4 text-center font-bold text-slate-400">v{c.currentVersion}</td>
-                        <td className="p-4 text-right">
+                        <td className="p-3 sm:p-4 text-center font-bold text-slate-400">v{c.currentVersion}</td>
+                        <td className="p-3 sm:p-4 text-right">
                           <span className="inline-flex items-center gap-1 text-blue-400 group-hover:translate-x-0.5 transition-transform font-sans font-semibold text-xs">
                             Audit Trail <ArrowRight className="w-3.5 h-3.5" />
                           </span>
