@@ -14,6 +14,8 @@ import {
 import * as api from '../services/api';
 import FleetRiskHeatmap from '../components/FleetRiskHeatmap';
 import CompareContainersModal from '../components/CompareContainersModal';
+import ContainerComparisonWidget from '../components/ContainerComparisonWidget';
+import LiveTelemetryTicker from '../components/LiveTelemetryTicker';
 
 export default function Dashboard({ onSelectContainer }) {
   const [activeTab, setActiveTab] = useState('LEDGER');
@@ -122,6 +124,9 @@ export default function Dashboard({ onSelectContainer }) {
         </div>
       </div>
 
+      {/* Live Real-time Telemetry Compliance Ticker */}
+      <LiveTelemetryTicker containers={containers} />
+
       {/* View Switcher Tabs */}
       <div className="flex items-center gap-3 border-b border-slate-800 pb-2">
         <button
@@ -159,6 +164,14 @@ export default function Dashboard({ onSelectContainer }) {
       {/* Multi-Container Fleet Comparison Matrix Modal */}
       {showCompareModal && (
         <CompareContainersModal onClose={() => setShowCompareModal(false)} />
+      )}
+
+      {/* Quick Comparative Fleet Telemetry Widget */}
+      {activeTab === 'LEDGER' && containers.length > 0 && (
+        <ContainerComparisonWidget
+          containers={containers}
+          onSelectContainer={onSelectContainer}
+        />
       )}
 
       {/* Main Containers Ledger List */}
