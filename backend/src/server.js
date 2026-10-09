@@ -16,20 +16,43 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/audittrail';
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CLIENT_URL = process.env.CLIENT_URL || '*';
 
-// Setup Socket.IO
+// Dynamic CORS Origin Evaluator function
+const corsOriginDelegate = (origin, callback) => {
+  // Allow non-browser / server-to-server / curl requests with no origin
+  if (!origin) return callback(null, true);
+
+  if (CLIENT_URL === '*' || CLIENT_URL === '') return callback(null, true);
+
+  const allowedOrigins = CLIENT_URL.split(',').map((o) => o.trim());
+
+  if (
+    allowedOrigins.includes(origin) ||
+    allowedOrigins.includes('*') ||
+    origin.endsWith('.netlify.app') ||
+    origin.endsWith('.onrender.com') ||
+    origin.includes('localhost')
+  ) {
+    return callback(null, true);
+  }
+
+  callback(null, true); // Permissive fallback to allow deployed frontend origins
+};
+
+// Setup Socket.IO with flexible CORS
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL,
-    methods: ['GET', 'POST'],
+    origin: corsOriginDelegate,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
   },
 });
 
 app.set('io', io);
 
-// Middleware
-app.use(cors({ origin: CLIENT_URL }));
+// Express Middleware
+app.use(cors({ origin: corsOriginDelegate, credentials: true }));
 app.use(express.json());
 
 // Routes
