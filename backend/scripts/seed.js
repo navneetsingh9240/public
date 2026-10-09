@@ -1,12 +1,13 @@
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const path = require('path');
-const mongoose = require(path.join(__dirname, '../../backend/node_modules/mongoose'));
-const dotenv = require(path.join(__dirname, '../../backend/node_modules/dotenv'));
-dotenv.config({ path: path.join(__dirname, '../../backend/.env') });
 
-const Event = require('../../backend/src/models/Event');
-const ContainerReadModel = require('../../backend/src/models/ContainerReadModel');
-const commandHandlers = require('../../backend/src/commands/commandHandlers');
-const { rebuildAllProjections } = require('../../backend/src/projections/containerProjection');
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+const Event = require('../src/models/Event');
+const ContainerReadModel = require('../src/models/ContainerReadModel');
+const commandHandlers = require('../src/commands/commandHandlers');
+const { rebuildAllProjections } = require('../src/projections/containerProjection');
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/audittrail';
 
